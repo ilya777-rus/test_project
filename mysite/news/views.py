@@ -15,6 +15,7 @@ import multiprocessing
 
 from .models import Point, Triangles
 from .utils.main import main
+from .utils.my_functions import pointInTriangle, interpolation_delone
 from .utils.supermagapi import SuperMAGGetInventory, SuperMAGGetData
 import datetime
 import time
@@ -42,12 +43,32 @@ def index(request):
 
 def triangulate (request):
 
+    request.session.clear()
 
+    Point.objects.all().delete()
+    Triangles.objects.all().delete()
+
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM sqlite_sequence WHERE name='news_point';")
+    with connection.cursor() as cursor:
+        cursor.execute("UPDATE sqlite_sequence SET seq = 0 WHERE name='news_point';")
+
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM sqlite_sequence WHERE name='news_triangles';")
+    with connection.cursor() as cursor:
+        cursor.execute("UPDATE sqlite_sequence SET seq = 0 WHERE name='news_triangles';")
 
     logon = 'qwert123'
 
     if request.POST:
         start = request.POST.get('datatime','2012-01-01T00:00')
+        z=request.POST.get('z','sza')
+    print(z)
+
+    # if z!='sza':
+    #     z=z.split()
+    # else:
+    #     z='sza'
     print(start)
     (status, stations) = SuperMAGGetInventory(logon, start, 3600)
     print(stations)
@@ -73,13 +94,20 @@ def triangulate (request):
     queue_lock = threading.Lock()
     points_queue = queue.Queue()
 
-    def get_data_for_station(station):
+    def get_data_for_station(station,z):
         status, data = SuperMAGGetData(logon, start, 3600, flagstring, station, **dc)
         queue_lock.acquire()
+
         try:
             # with queue_lock:
-            points_queue.put([data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0]['sza']])
-            print(station, [data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0]['sza']])
+            if z!='sza':
+                z=z.split()
+                print(z)
+                points_queue.put([data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0][z[0]][z[1]]])
+                print(station, [data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0][z[0]][z[1]]])
+            else:
+                points_queue.put([data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0]['sza']])
+                print(station, [data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0]['sza']])
 
         except:
             print('errrr')
@@ -90,7 +118,7 @@ def triangulate (request):
     # Создаем список потоков и запускаем их
     threads = []
     for i in range(len(stations) - 1):
-        t = threading.Thread(target=get_data_for_station, args=(stations[i],))
+        t = threading.Thread(target=get_data_for_station, args=(stations[i],z))
         threads.append(t)
         t.start()
 
@@ -104,18 +132,24 @@ def triangulate (request):
         points_api.append(points_queue.get())
 
 
-    def getst(station):
+    def getst(station,z):
         status, data = SuperMAGGetData(logon, start, 3600, flagstring, station, FORMAT='list')
         try:
             with queue_lock:
-                points_api.append([data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0]['sza']])
-                print([data[0]['iaga'], data[0]['glon'], data[0]['glat']])
+                if z != 'sza':
+                    z = z.split()
+                    print(z)
+                    points_queue.put([data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0][z[0]][z[1]]])
+                    print(station, [data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0][z[0]][z[1]]])
+                else:
+                    points_queue.put([data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0]['sza']])
+                    print(station, [data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0]['sza']])
         except:
             print('errr')
 
     threads1 = []
     for i in range(len(stations_err) - 1):
-        t = threading.Thread(target=getst, args=(stations_err[i],))
+        t = threading.Thread(target=getst, args=(stations_err[i],z))
         threads1.append(t)
         t.start()
     for t in threads1:
@@ -209,14 +243,15 @@ def triangulate (request):
                            break
         triangles_db.append(Triangles(vertex1=v1,vertex2=v2,vertex3=v3))
     Triangles.objects.bulk_create(triangles_db)
-    triangles33=[tr.get_list() for tr in triangles_db]
+    ll=Triangles.objects.all()
+    triangles33=[tr.get_list() for tr in ll]
     pointss_db1=Point.objects.all()
     points_api2=[[point.glon,point.glat,point.iaga,point.sza]  for point in pointss_db1]
     print(len(triangles3))
     print(len(points_api2))
     data = {
         'triangles': triangles33,
-        'points':[{'merx':point[0],'mery':point[1],'iaga':point[2], 'sza':point[3]} for point in points_api2]
+        'points':[{'glon':point[0],'glat':point[1],'iaga':point[2], 'sza':point[3]} for point in points_api2]
     }
 
 
@@ -226,6 +261,8 @@ def triangulate (request):
 
 
 def inter(request):
+
+
 
 
     if request.method=='POST':
@@ -238,8 +275,6 @@ def inter(request):
         del_triangls=json_data.get('del_triangls',None)
 
         del_points=json_data.get('del_points', None)
-
-
 
         # print('PPPPPPOOOOOOOOINTTTT', point['x'],point['y'])
         # print('mecorator',mercator(-14.989422314802818,-68.57808523238243))
@@ -395,47 +430,28 @@ def inter(request):
                 # break
 
         else:
+
+            delp= request.session.get('del', None)
+
             pointsdb = Point.objects.all()
             point_array = list(pointsdb.values())
-            print('YES',point_array)
-            print(len(point_array))
-            sza = []
-            count = 0
-            for p in points:
-                for i in range(3):
-                    if p['merx'] == triangl[i][0] and p['mery'] == triangl[i][1]:
-                        sza.append([p['merx'], p['mery'], p['sza']])
-                        count += 1
-                if count == 3:
-                    print('break')
-                    print("333333", sza)
-                    break
-            # try:
-            #     print('tryy')
-            #     x,y =point['x'],point['y']
-            # except:
-            print('except', point)
-            x, y = point['x'], point['y']
-            print("SZAAAAAAAAAAAAAA", sza)
-            Y1 = sza[0][1]
-            Y2 = sza[1][1]
-            Y3 = sza[2][1]
-            X1 = sza[0][0]
-            X2 = sza[1][0]
-            X3 = sza[2][0]
-            Z1 = sza[0][2]
-            Z2 = sza[1][2]
-            Z3 = sza[2][2]
-            a = Y1 * (Z2 - Z3) + Y2 * (Z3 - Z1) + Y3 * (Z1 - Z2)
-            b = Z1 * (X2 - X3) + Z2 * (X3 - X1) + Z3 * (X1 - X2)
-            c = X1 * (Y2 - Y3) + X2 * (Y3 - Y1) + X3 * (Y1 - Y2)
-            d = X1 * (Y2 * Z3 - Y3 * Z2) + X2 * (Y3 * Z1 - Y1 * Z3) + X3 * (Y1 * Z2 - Y2 * Z1)
-            d = d * (-1)
+            print('олучение удаленной',  delp)
 
-            result = (-1) * (a * x + b * y + d) / c
-            result = round(result, 5)
 
-        print('UDALddddddddd', del_points)
+            # triangles = [tr.get_list() for tr in Triangles.objects.all()]
+            triangles_db = Triangles.objects.all()
+            triangles_db1 = [tr.get_list() for tr in triangles_db]
+
+            triangles = request.session.get('triangles',triangles_db1)
+            points_arr = request.session.get('points', point_array)
+
+            # print(triangles1)
+            print(points_arr)
+            # print(len(points_arr))
+
+            result = interpolation_delone(triangles,  points_arr, point)
+
+            print('Результат интерполяции на триангуляции после клика', result)
         data = {
             'res':result,
             'del_points':del_points
@@ -446,9 +462,26 @@ def inter(request):
 
 def vallin(request):
 
+    request.session.clear()
+
     json_data = json.loads(request.body)
-    points=json_data.get('points', None)
-    del_points = json_data.get('del_points', None)
+    del_point= json_data.get('del_point', None)
+
+    request.session['del'] = del_point
+    # pointss_db = Point.objects.all()
+    # points = [[point.glon, point.glat, point.iaga, point.sza] for point in pointss_db]
+    pointsdb = Point.objects.all()
+    points = list(pointsdb.values())
+    # points=json_data.get('points', None)
+    print(del_point)
+    print('ДЛИНА ДО',len(points))
+    for p in points:
+        if p['iaga']==del_point['iaga']:
+            print('УДАЛЯЕММММ',p)
+            points.remove(p)
+            break
+    print(len(points))
+
 
     def vert(lst) -> List[Vertex]:
         vertices: List[Vertex] = []
@@ -456,28 +489,79 @@ def vallin(request):
         for p in lst:
             vertices.append(
                 Vertex(
-                    x=p['merx'],
-                    y=p['mery']
+                    x=p['glon'],
+                    y=p['glat']
                 )
             )
         return vertices
 
-    mer_points2 = vert(points)
+    mer_points3 = vert(points)
 
-    trii = delaunay(
-        vertices=mer_points2,
+    trii3 = delaunay(
+        vertices=mer_points3,
         delete_super_shared=True)
 
     triangles33 = []
-    for t in trii:
+    for t in trii3:
         triangles33.append([[v.x, v.y] for v in t.vertices])
 
-    print('DEELLL',del_points)
+    request.session['triangles']=triangles33
+    request.session['points']=points
+    result = interpolation_delone(triangles33, points, del_point)
+
+    Zxy=del_point['sza']
+    points2 = [(pp['glon'], pp['glat']) for pp in points]
+
+    sorted_points = sorted(points2, key=lambda p: math.dist((del_point['x'], del_point['y']), p))
+    print('closestPoints', sorted_points[:4])
+
+    srtp = sorted_points[:4]
+    Z_val = []
+    c = 0
+    for p in points:
+        for i in range(len(srtp)):
+            if p['glon'] == srtp[i][0] and p['glat'] == srtp[i][1]:
+                Z_val.append([srtp[i][0], srtp[i][1], p['sza']])
+                c += 1
+        if c == len(srtp):
+            print('BREAAAAAAAAAAAAAK  SORTEDDD_POINTSSSSSSSS')
+            break
+
+
+    print('DEELLL',del_point)
+
+    distances = [math.dist((del_point['x'], del_point['y']), p) for p in srtp]
+    print(distances)
+    sum_weight = 0
+    sum = 0
+    for i in range(len(distances)):
+        sum_weight += 1 / distances[i]
+        sum += Z_val[i][2] * (1 / distances[i])
+
+
+    f = sum / sum_weight
+
+    print('ffffff', f)
+    print(result)
+
+    error1 = ((Zxy - result) / Zxy) * 100
+    error2 = ((Zxy - f) / Zxy) * 100
+    print(error1)
+    print(error2)
+
+    del_point['error1'] = round(error1, 6)
+    del_point['error2'] = round(error2, 6)
+
+    del_point['f'] = f
+
+    # i+=1
+    del_point['myz'] = result
+
 
     data = {
         'triangles': triangles33,
         'points':points,
-        'del_points':del_points
+        'del_point':[del_point]
     }
 
     return JsonResponse(data)

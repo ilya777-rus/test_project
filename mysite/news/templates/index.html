@@ -41,7 +41,14 @@
   <div class="menu">
     <form method="post" action="/triangulate/" id="formdata">
       {% csrf_token %}
+      <label for="datatime">Дата и время:</label>
       <input type="datetime-local" name="datatime" required>
+
+       <label for="z">Выберети параметр:</label>
+        <select name="z" id="mySelect" required>
+          <option value="sza">SZA</option>
+          <option value="N nez">N:Nez</option>
+        </select>
       <input type="submit" value="отправить">
 
     </form>
