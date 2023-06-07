@@ -49,10 +49,18 @@
           <option value="sza">SZA</option>
           <option value="N nez">N:Nez</option>
         </select>
-      <input type="submit" value="отправить">
+      <input type="submit" value="Получить данные">
+        <input type="checkbox" name="checkbox_name"  id="checkbox">
+        <label for="checkbox" class="checkbox-label">Интерполировать</label>
+<p>Задайте параметры для IDW метода:</p>
+<label for="integer1">Параметр сглаживания:</label>
+  <input type="number" name="integer1"  id="int1" step="1"  min="0" max="5" required>
+
+  <label for="integer2">Степенной параметр:</label>
+  <input type="number" name="integer2" id="int2"  step="1"   min="1" max="10" required>
 
     </form>
-     <button class="but" id="delete-button">Удалить</button>
+<!--     <button class="but" id="delete-button">Удалить</button>-->
 
   </div>
   {% endblock %}

@@ -75,9 +75,6 @@ console.log("VIEWWW",map.spatialReference)
 
 
 
-
-
-
         function addTriangles(triangles)
         {
 
@@ -150,7 +147,7 @@ console.log("VIEWWW",map.spatialReference)
 //           <br>X:{X}<br>Y:{Y}
               popupTemplate: {
                 title: "Координаты станции {IAGA}, {name_z}:{Z} ",
-                content: "Долгота:{Lon}<br>Широта:{Lat}<br>Интерполяция на основе триангуляции,{name_z}:{myZ}<br>Метод обратных расстояний, {name_z}:{f}<br>1 Ошибка интр.:{er1} %<br>2 Ошибка интр.:{er2} %",
+                content: "Долгота:{Lon}<br>Широта:{Lat}<br>Интерполяция методом TIN,{name_z}:{myZ}<br>Интерполяция методом IDW, {name_z}:{f}<br>Ошибка интерполяции TIN:{er1} %<br>Ошибка интерполяции IDW:{er2} %",
                  actions: [{
                             name: "deleteFeature",
                              title: "Удалить",
@@ -163,7 +160,6 @@ console.log("VIEWWW",map.spatialReference)
              graphicsLayer.add(pointGraphic);
           }
          }
-
 
 
          function addpoints(points){
@@ -184,34 +180,10 @@ console.log("VIEWWW",map.spatialReference)
                       }]
                     };
 
-//            var textSymbol = {
-//              type: "text",
-//              color: "black",
-//              font: {
-//                size: 1000
-//              },
-//              haloSize: 1,
-//              haloColor: [255, 255, 255, 0.7]
-//            };
-
-//            let textSymbol = {
-//                  type: "text",  // autocasts as new TextSymbol()
-//                  color: "white",
-//                  haloColor: "black",
-//                  haloSize: "1px",
-////                  text: "You are here",
-//                  xoffset: 3,
-//                  yoffset: 3,
-//                  font: {  // autocasts as new Font()
-//                    size: 12,
-//                    family: "Josefin Slab",
-//                    weight: "bold"
-//                  }
-//                };
 
 
-            var selectElement = document.getElementById("mySelect");
-            var selectedValue = selectElement.value;
+            let selectElement = document.getElementById("mySelect");
+            let selectedValue = selectElement.value;
 
             for (var i = 0; i < points.length; i++) {
             var point = new Point({
@@ -219,6 +191,8 @@ console.log("VIEWWW",map.spatialReference)
               y: points[i]['glat'],
                spatialReference:{wkid: 3857}
             });
+
+
 
 
             let NEZ='NEZ';
@@ -245,7 +219,7 @@ console.log("VIEWWW",map.spatialReference)
             },
               popupTemplate: {
                 title: "Координаты станции {IAGA}, {name_z}:{Z} ",
-                content: "Долгота:{Lon}<br>Широта:{Lat}<br>X:{X}<br>Y:{Y}",
+                content: "Долгота:{Lon}<br>Широта:{Lat}",
                  actions: [{
                             name: "deleteFeature",
                              title: "Удалить",
@@ -334,187 +308,6 @@ console.log("VIEWWW",map.spatialReference)
 
 
 
-
-
-
-
-
-
-
-//
-//
-//        let del_points=[];
-//  function DeleteFeature() {
-//                        if (view.popup.selectedFeature) {
-//                          // удалить графический объект из слоя
-//                         const feature = view.popup.selectedFeature;
-//                        const geometry = feature.geometry;
-//                        const coordinates = geometry.type === "point" ? [geometry.x, geometry.y] : geometry.paths[0];
-//                        // сохранить координаты в переменную coordinates
-//                        console.log('Длина перед',points.length);
-//                        console.log('Длина перед',points);
-//                        console.log("Координаты точки:", coordinates);
-//                        let index;
-//                        points.forEach(function(point){
-//
-//                            if (point['merx']===coordinates[0] && point['mery']===coordinates[1]){
-//                                del_points.push(point);
-//                                console.log('poiintts',point);
-//                                index = points.indexOf(point);
-//                                }
-////                    const index = points.findIndex(point => point.merx === coordinates[0] && point.mery === coordinates[1]);
-//
-//                                 });
-//                        points.splice(index,1);
-//                        console.log('Длина после',points.length);
-//                          view.popup.selectedFeature.layer.remove(view.popup.selectedFeature);
-//                          // закрыть всплывающее окно
-//                          view.popup.close();
-//                          }
-//                        }
-//
-//                       view.popup.on("trigger-action", (event) => {
-////                              id: "delete-feature",
-//                     if (event.action.id === "delete-feature") {
-//                           DeleteFeature()
-//                           }
-//
-//                            });
-//                             let del_triangls=[];
-//
-//                   const deleteButton = document.getElementById("delete-button");
-//
-//                            deleteButton.addEventListener("click", function() {
-//
-//                              let xhr3 = new XMLHttpRequest();
-//                               xhr3.responseType = 'json';
-//
-//                              const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-//
-//                              xhr3.open('POST', '/triangulate/vallin/', true);
-//
-//                              xhr3.setRequestHeader('X-CSRFToken', csrfToken);
-//
-//
-//                              json = JSON.stringify({
-//
-//                                      points:points,
-//                                      del_points:del_points,
-//
-//                                   });
-//
-//
-//                              xhr3.send(json);
-//
-//                              xhr3.onload = function(){
-//                              if (xhr3.status===200)
-//                              {
-//                              if (graphicsLayer!=undefined)
-//                                     graphicsLayer.removeAll();
-//                              var resp3 = xhr3.response ;
-//                              var tr=resp3.triangles;
-//                              var pt = resp3.points;
-//                              var dl = resp3.del_points
-//                                 console.log('DLLLddddd',dl[0])
-//                                 console.log('TRRRRRRRRRRRR',tr)
-//                                  let isInsideTriangle2 ;
-//
-//                                 for (let i=0;i<dl.length;i++){
-//
-////                                 let closestPoints = geometryEngine.nearestVertices(pt, dl[i], 2);
-////                                 console.log('closestPoints ',closestPoints )
-//
-//                                   isInsideTriangle2 = tr.find(function(triangle) {
-//
-//                                           return pointInTriangle2(dl[i], triangle);
-//                                          });
-//                                          del_triangls.push(isInsideTriangle2);
-//
-//                                         }
-//                                         console.log('isInsideTriangle2 ',del_triangls)
-//
-//                                      let xhr4 = new XMLHttpRequest();
-//                                           xhr4.responseType = 'json';
-//
-//                                          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-//
-//                                          xhr4.open('POST', '/triangulate/inter/', true);
-//
-//                                          xhr4.setRequestHeader('X-CSRFToken', csrfToken);
-//
-//
-//                                          json = JSON.stringify({
-//                                                    del_triangls:del_triangls,
-//
-//                                                  points:points,
-//                                                  del_points:del_points,
-//
-//                                               });
-//
-//
-//                                          xhr4.send(json);
-//
-//                                          xhr4.onload = function(){
-//                                          if (xhr4.status===200){
-//                                          var resp=xhr4.response;
-//                                          console.log(resp.del_points);
-//                                          addpoints2(resp.del_points);
-//
-//                                          }else{
-//                                          console.log('ошибкааааа', xhr4.status)
-//                                          }
-//                                        }
-//
-//                              addTriangles(tr);
-//                              addpoints(pt);
-////                              addpoints(dl);
-//
-//                              }
-//                              else{
-//                              console.log('ERRRRRRRRROORRR',xhr3.status);
-//                              }
-//                            }
-//
-//
-//
-//
-//                        });
-
-
-
-
-
-//    // добавление обработчика события на клик мыши на слое GraphicsLayer
-//                graphicsLayer.on("click", function(event) {
-//                  // получаем выбранный графический объект
-//                  const selectedFeature = event.graphics[0];
-//
-//                  // если графический объект уже выбран, снимаем выбор
-//                  if (selectedFeature.selected) {
-//                    graphicsLayer.clearSelection(selectedFeature);
-//                  }
-//                  // если графический объект не выбран, выбираем его
-//                  else {
-//                    graphicsLayer.select(selectedFeature);
-//                  }
-//                });
-//
-//
-//      const deleteButton = document.getElementById("delete-button");
-//
-//            deleteButton.addEventListener("click", function() {
-//  // получаем выбранные графические объекты точек
-//   const selectedFeatures = graphicsLayer.getSelectedFeatures();
-//
-//
-//              // удаляем выбранные точки из слоя
-//              graphicsLayer.removeMany(selectedFeatures);
-//            });
-
-
-
-
-
         }
         else{
         console.log('Ошибка запроса');
@@ -577,23 +370,33 @@ console.log("VIEWWW",map.spatialReference)
         };
 
 
-
-
-
     });
 
 
 
+const checkbox = document.getElementById("checkbox");
 
 
+var flag = false;
 
+checkbox.addEventListener("change", function() {
+         if (this.checked) {
+        flag = true;
+              console.log("Пошлооооооооооо");}
 
-
-
-
+              else{
+              flag = false;
+    console.log('НЕЛЬЗЯ')
+    }
+     });
 
     view.on("click", function(evt)
          {
+
+
+
+     if (flag){
+
          console.log("Сработал POST для интерполяции")
           var point = view.toMap({x: evt.x, y: evt.y});
 
@@ -646,6 +449,10 @@ console.log("VIEWWW",map.spatialReference)
 
           }
 
+            var  selectElement2 = document.getElementById("mySelect");
+      var selectedValue2 = selectElement2.value;
+
+
           if ( !existingPoint) {
             console.log("Точка находится внутри треугольника.");
 //            console.log('triangll',  isInsideTriangle);
@@ -671,10 +478,11 @@ console.log("VIEWWW",map.spatialReference)
                     Y:point.y,
                     // IAGA:points[i].iaga,
                     Z:resp['res'],
+                    name_z:selectedValue2.toUpperCase()
                     },
                     popupTemplate: {
-                        title: "Значение SZA:{Z}  ",
-                        content: "Долгота:{Lon}<br>Широта:{Lat}<br>X:{X}<br>Y:{Y}",
+                        title: "Значение {name_z}, полученное с помощью метода TIN:{Z}  ",
+                        content: "Долгота:{Lon}<br>Широта:{Lat}",
                         actions: [{
                             name: "deleteFeature",
                              title: "Удалить",
@@ -706,16 +514,24 @@ console.log("VIEWWW",map.spatialReference)
           console.log("Точка находится вне треугольника. На другой точке");
         }
 
+    }
+
+
     });
-
-
-
 
 
 
 
                 let del_point;
              function DeleteFeature() {
+
+                         var selectElement = document.getElementById("mySelect");
+                        var selectedValue = selectElement.value;
+                        var int1 = document.getElementById("int1");
+                            var int2 = document.getElementById("int2");
+                            var d = int1.value;
+                            var b = int2.value;
+
                         if (view.popup.selectedFeature) {
                           // удалить графический объект из слоя
                          const feature = view.popup.selectedFeature;
@@ -736,7 +552,7 @@ console.log("VIEWWW",map.spatialReference)
 
 ////
                         let xhr3 = new XMLHttpRequest();
-                        let xhr2 = new XMLHttpRequest();
+
                                xhr3.responseType = 'json';
 
                               const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -747,20 +563,18 @@ console.log("VIEWWW",map.spatialReference)
                               xhr3.setRequestHeader('X-CSRFToken', csrfToken);
 
 
+
+
                               json = JSON.stringify({
                                      del_point:del_point,
+                                     selectedValue:selectedValue,
+                                     d:d,
+                                     b:b
                                    });
 
                                 console.log(json);
+
                               xhr3.send(json);
-
-
-
-                                let json2 = JSON.stringify({
-                                  del_point: del_point,
-                                });
-
-
 
                               xhr3.onload = function(){
                                   if (xhr3.status===200)
@@ -855,129 +669,6 @@ console.log("VIEWWW",map.spatialReference)
                                                      }
 
                                             });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//                             let del_triangls=[];
-
-                            const deleteButton = document.getElementById("delete-button");
-
-
-
-
-                            deleteButton.addEventListener("click", function() {
-
-//                              let xhr3 = new XMLHttpRequest();
-//                               xhr3.responseType = 'json';
-//
-//                              const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-//
-//                              xhr3.open('POST', '/triangulate/vallin/', true);
-//
-//                              xhr3.setRequestHeader('X-CSRFToken', csrfToken);
-//
-//
-//                              json = JSON.stringify({
-//
-//                                      points:points,
-//                                      del_points:del_points,
-//
-//                                   });
-//
-//
-//                              xhr3.send(json);
-//
-//                              xhr3.onload = function(){
-//                                  if (xhr3.status===200)
-//                                  {
-//                                  if (graphicsLayer!=undefined)
-//                                         graphicsLayer.removeAll();
-//                                  var resp3 = xhr3.response ;
-//                                  var tr=resp3.triangles;
-//                                  var pt = resp3.points;
-//                                  var dl = resp3.del_points
-//                                     console.log('DLLLddddd',dl[0])
-//                                     console.log('TRRRRRRRRRRRR',tr)
-//                                      let isInsideTriangle2 ;
-//
-//                                 for (let i=0;i<dl.length;i++){
-//
-////                                 let closestPoints = geometryEngine.nearestVertices(pt, dl[i], 2);
-////                                 console.log('closestPoints ',closestPoints )
-//
-//                                   isInsideTriangle2 = tr.find(function(triangle) {
-//
-//                                           return pointInTriangle2(dl[i], triangle);
-//                                          });
-//                                          del_triangls.push(isInsideTriangle2);
-//
-//                                         }
-//                                         console.log('isInsideTriangle2 ',del_triangls)
-//
-//                                      let xhr4 = new XMLHttpRequest();
-//                                           xhr4.responseType = 'json';
-//
-//                                          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-//
-//                                          xhr4.open('POST', '/triangulate/inter/', true);
-//
-//                                          xhr4.setRequestHeader('X-CSRFToken', csrfToken);
-//
-//
-//                                          json = JSON.stringify({
-//                                                    del_triangls:del_triangls,
-//
-//                                                  points:points,
-//                                                  del_points:del_points,
-//
-//                                               });
-//
-//
-//                                          xhr4.send(json);
-//
-//                                          xhr4.onload = function(){
-//                                          if (xhr4.status===200){
-//                                          var resp=xhr4.response;
-//                                          console.log(resp.del_points);
-//                                          addpoints2(resp.del_points);
-//
-//                                          }else{
-//                                          console.log('ошибкааааа', xhr4.status)
-//                                          }
-//                                        }
-//
-//                              addTriangles(tr);
-//                              addpoints(pt);
-////                              addpoints(dl);
-//
-//                              }
-//                              else{
-//                              console.log('ERRRRRRRRROORRR',xhr3.status);
-//                              }
-//                            }
-
-
-
-
-                        });
-
-
-
-
-
-
 
 
 

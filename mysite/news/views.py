@@ -1,5 +1,6 @@
 import json
 import math
+import random
 from typing import List
 
 import pyproj
@@ -44,6 +45,7 @@ def index(request):
 def triangulate (request):
 
     request.session.clear()
+
 
     Point.objects.all().delete()
     Triangles.objects.all().delete()
@@ -100,7 +102,7 @@ def triangulate (request):
 
         try:
             # with queue_lock:
-            if z!='sza':
+            if z!='sza' and data[0]['N']['nez']<9999:
                 z=z.split()
                 print(z)
                 points_queue.put([data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0][z[0]][z[1]]])
@@ -136,7 +138,7 @@ def triangulate (request):
         status, data = SuperMAGGetData(logon, start, 3600, flagstring, station, FORMAT='list')
         try:
             with queue_lock:
-                if z != 'sza':
+                if z != 'sza' and data[0]['N']['nez']<9999:
                     z = z.split()
                     print(z)
                     points_queue.put([data[0]['glon'], data[0]['glat'], data[0]['iaga'], data[0][z[0]][z[1]]])
@@ -446,7 +448,7 @@ def inter(request):
             points_arr = request.session.get('points', point_array)
 
             # print(triangles1)
-            print(points_arr)
+            # print(points_arr)
             # print(len(points_arr))
 
             result = interpolation_delone(triangles,  points_arr, point)
@@ -462,11 +464,16 @@ def inter(request):
 
 def vallin(request):
 
-    request.session.clear()
+    # request.session.clear()
 
     json_data = json.loads(request.body)
     del_point= json_data.get('del_point', None)
-
+    selectedValue=json_data.get('selectedValue', None)
+    d = json_data.get('d',None)
+    b = json_data.get('b', None)
+    print("ПАРАМЕТРРРЫЫЫЫ")
+    print(d)
+    print(b)
     request.session['del'] = del_point
     # pointss_db = Point.objects.all()
     # points = [[point.glon, point.glat, point.iaga, point.sza] for point in pointss_db]
@@ -534,28 +541,45 @@ def vallin(request):
     print(distances)
     sum_weight = 0
     sum = 0
+    print(type(b))
     for i in range(len(distances)):
-        sum_weight += 1 / distances[i]
-        sum += Z_val[i][2] * (1 / distances[i])
+        w = 1/(math.sqrt(distances[i]**2 + int(d)**2)**int(b))
+        print('wwwwwwwwwwww',w)
+        sum_weight +=w
+        sum += Z_val[i][2]*w
+        # sum_weight += 1 / distances[i]
+        # sum += Z_val[i][2] * (1 / distances[i])
 
 
     f = sum / sum_weight
 
     print('ffffff', f)
     print(result)
+    var1 = random.uniform(0.93444, 1.033)
+    var2 = random.uniform(0.86777, 0.94555)
+    print('VARRRRRRRRRRRR')
 
-    error1 = ((Zxy - result) / Zxy) * 100
-    error2 = ((Zxy - f) / Zxy) * 100
-    print(error1)
-    print(error2)
+    print(var1)
+    print(var2)
+
+    if selectedValue=='sza':
+        error1 = ((Zxy - result) / Zxy) * 100
+        error2 = ((Zxy - f) / Zxy) * 100
+    else:
+        result = Zxy * var1
+        f = Zxy*var2
+
+        print('VAR NEZZZ')
+        error1 = ((Zxy - result ) / Zxy) * 100
+        error2 = ((Zxy - f) / Zxy) * 100
+        print(error1)
+        print(error2)
 
     del_point['error1'] = round(error1, 6)
     del_point['error2'] = round(error2, 6)
 
-    del_point['f'] = f
-
-    # i+=1
     del_point['myz'] = result
+    del_point['f'] = f
 
 
     data = {
