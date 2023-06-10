@@ -49,9 +49,20 @@
           <option value="sza">SZA</option>
           <option value="N nez">N:Nez</option>
         </select>
-      <input type="submit" value="Получить данные">
+      <input type="submit" id="submitButton"  value="Получить данные">
+      <div id="loadingMessage" style="display: none;">
+        <span style="font-size: 20px; color: #333;">Идет загрузка...</span>
+          <span class="loader"></span>
+      </div>
+
+<div id="errorPopup" class="error-popup">
+  <div class="error-message">Произошла ошибка загрузки.</div>
+  <button id="closeButton">Закрыть</button>
+</div>
+
+
         <input type="checkbox" name="checkbox_name"  id="checkbox">
-        <label for="checkbox" class="checkbox-label">Интерполировать</label>
+        <label for="checkbox" class="checkbox-label">Интерполировать методом TIN </label>
 <p>Задайте параметры для IDW метода:</p>
 <label for="integer1">Параметр сглаживания:</label>
   <input type="number" name="integer1"  id="int1" step="1"  min="0" max="5" required>

@@ -260,12 +260,20 @@ console.log("VIEWWW",map.spatialReference)
           const formdata = document.getElementById('formdata')
 
 
-
+        var isRequestPending = false;
+        var triangulate = false;
           formdata.addEventListener('submit',function(e){
 
 
 
           e.preventDefault();
+          var loadingMessage = document.getElementById('loadingMessage');
+            loadingMessage.style.display = 'block'; // Отображаем надпись загрузки
+
+          if (isRequestPending) {
+                            return; // Если запрос уже выполняется, не выполняем повторное нажатие
+                          }
+
           let thisForm = e.target;
           let end = thisForm.getAttribute('action');
           let data = new FormData(thisForm);
@@ -278,11 +286,17 @@ console.log("VIEWWW",map.spatialReference)
 
           xhr.responseType='json';
 
+          var loadingMessage = document.getElementById('loadingMessage');
+          loadingMessage.style.display = 'block'; // Отображаем надпись загрузки
 
+          var submitButton = document.getElementById('submitButton');
+           submitButton.disabled = true;
 
           xhr.onload = function() {
            if (xhr.status === 200) {
            console.log("УСПЕЕЕЕЕХХХХХХХХХХХ");
+             triangulate=true;
+            loadingMessage.style.display = 'none';
 
            console.log(xhr.response.triangles);
            console.log(typeof(xhr.response));
@@ -311,7 +325,21 @@ console.log("VIEWWW",map.spatialReference)
         }
         else{
         console.log('Ошибка запроса');
+         loadingMessage.style.display = 'none';
+          alert('Произошла ошибка загрузки.');
+//        var errorPopup = document.getElementById('errorPopup');
+//        errorPopup.style.display = 'block'; // Показываем всплывающее окно с ошибкой
+
+
+//          var closeButton = document.getElementById('closeButton');
+//        closeButton.addEventListener('click', function () {
+//          errorPopup.style.display = 'none'; // Скрываем окно ошибки при нажатии на кнопку "Закрыть"
+//        });
+//           var errorPopup = document.getElementById('errorPopup');
+//        errorPopup.style.display = 'block'; // По
         }
+        isRequestPending = false; // Устанавливаем флаг блокировки в false
+         submitButton.disabled = false;
 
 
     }
@@ -395,7 +423,7 @@ checkbox.addEventListener("change", function() {
 
 
 
-     if (flag){
+     if (flag &&  triangulate){
 
          console.log("Сработал POST для интерполяции")
           var point = view.toMap({x: evt.x, y: evt.y});
@@ -462,6 +490,10 @@ checkbox.addEventListener("change", function() {
                 if (xhr1.status===200) {
 
                     var resp = xhr1.response;
+                    if (resp['res']==null)
+                    {
+                    return
+                    }
 
                     console.log(resp);
                     let gr= new Graphic({geometry:point,

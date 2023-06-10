@@ -555,8 +555,8 @@ def vallin(request):
 
     print('ffffff', f)
     print(result)
-    var1 = random.uniform(0.93444, 1.033)
-    var2 = random.uniform(0.86777, 0.94555)
+    var1 = random.uniform(0.96444, 1.033)
+    var2 = random.uniform(0.94777, 0.97555)
     print('VARRRRRRRRRRRR')
 
     print(var1)
