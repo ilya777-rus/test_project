@@ -274,15 +274,20 @@ console.log("VIEWWW",map.spatialReference)
                             return; // Если запрос уже выполняется, не выполняем повторное нажатие
                           }
 
+            var datatime = document.getElementById('datatime');
+            var dt = datatime.value;
+
           let thisForm = e.target;
           let end = thisForm.getAttribute('action');
           let data = new FormData(thisForm);
 
           var xhr = new XMLHttpRequest();
-          xhr.open('POST', '/triangulate/', true);
+//          xhr.open('POST', '/triangulate/', true);
+            xhr.open('GET', '/triangulate/?datatime='+ encodeURIComponent(dt) , true);
            if (graphicsLayer!=undefined)
                  graphicsLayer.removeAll();
-          xhr.send(data);
+          xhr.send();
+//          xhr.send(data);
 
           xhr.responseType='json';
 
@@ -297,6 +302,20 @@ console.log("VIEWWW",map.spatialReference)
            console.log("УСПЕЕЕЕЕХХХХХХХХХХХ");
              triangulate=true;
             loadingMessage.style.display = 'none';
+
+            var datatime = document.getElementById('datatime');
+            var dt = datatime.value;
+            console.log('ДАТА и ВРЕМЯ', dt.split('-')[0].length);
+
+            if (dt.split('-')[0].length>4)
+                {
+                submitButton.disabled = false;
+               alert('Произошла ошибка загрузки данных.Проверьте интернет или повторите попытку');
+
+                return
+//                 graphicsLayer.removeAll();
+//                return
+                }
 
            console.log(xhr.response.triangles);
            console.log(typeof(xhr.response));
@@ -326,7 +345,7 @@ console.log("VIEWWW",map.spatialReference)
         else{
         console.log('Ошибка запроса');
          loadingMessage.style.display = 'none';
-          alert('Произошла ошибка загрузки.');
+          alert('Произошла ошибка загрузки данных.Проверьте интернет или повторите попытку');
 //        var errorPopup = document.getElementById('errorPopup');
 //        errorPopup.style.display = 'block'; // Показываем всплывающее окно с ошибкой
 

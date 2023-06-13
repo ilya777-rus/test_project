@@ -61,10 +61,11 @@ def triangulate (request):
         cursor.execute("UPDATE sqlite_sequence SET seq = 0 WHERE name='news_triangles';")
 
     logon = 'qwert123'
-
-    if request.POST:
-        start = request.POST.get('datatime','2012-01-01T00:00')
-        z=request.POST.get('z','sza')
+    start = request.GET.get('datatime', None)
+    z = request.GET.get('z', 'sza')
+    # if request.POST:
+        # start = request.POST.get('datatime','2012-01-01T00:00')
+        # z=request.POST.get('z','sza')
     print(z)
 
     # if z!='sza':
@@ -280,180 +281,180 @@ def inter(request):
 
         # print('PPPPPPOOOOOOOOINTTTT', point['x'],point['y'])
         # print('mecorator',mercator(-14.989422314802818,-68.57808523238243))
-        if point == None:
-            # i=0
-            print('Triangl', triangl)
-            # for tring in del_triangls:
-            for ind in range(len(del_points)):
-                print('TrianglLLLLLLLLLLLLLLLLLLL', del_triangls[ind])
-                sza=[]
-                count=0
-                for p in points:
-                    for i in range(3):
-                        if p['merx']== del_triangls[ind][i][0] and p['mery']== del_triangls[ind][i][1] :
-                            sza.append([p['merx'],p['mery'],p['sza']])
-                            count+=1
-                    if count == 3:
-                        print('break')
-                        print("333333", sza)
-                        break
-                # try:
-                #     print('tryy')
-                #     x,y =point['x'],point['y']
-                # except:
-                print('Удалленная точка', del_points[ind])
-                print('Удалленный треугольник для нее',  del_triangls[ind])
-                x,y = del_points[ind]['merx'], del_points[ind]['mery']
-                Zxy=del_points[ind]['sza']
-                print("SZAAAAAAAAAAAAAA", sza)
-                Y1 = sza[0][1]
-                Y2 = sza[1][1]
-                Y3 = sza[2][1]
-                X1 = sza[0][0]
-                X2 = sza[1][0]
-                X3 = sza[2][0]
-                Z1 = sza[0][2]
-                Z2 = sza[1][2]
-                Z3 = sza[2][2]
-                a = Y1 * (Z2 - Z3) + Y2 * (Z3 - Z1) + Y3 * (Z1 - Z2)
-                b = Z1 * (X2 - X3) + Z2 * (X3 - X1) + Z3 * (X1 - X2)
-                c = X1 * (Y2 - Y3) + X2 * (Y3 - Y1) + X3 * (Y1 - Y2)
-                d = X1 * (Y2 * Z3 - Y3 * Z2) + X2 * (Y3 * Z1 - Y1 * Z3) + X3 * (Y1 * Z2 - Y2 * Z1)
-                d = d * (-1)
-                print()
-                result = (-1) * (a * x + b * y + d) / c
-                print('MYINTERPOL:ATIOOOONNNNNNNNNNNNNN', a * x + b * y + c * result + d == 0)
-                result = round(result, 5)
+        # if point == None:
+        #     # i=0
+        #     print('Triangl', triangl)
+        #     # for tring in del_triangls:
+        #     for ind in range(len(del_points)):
+        #         print('TrianglLLLLLLLLLLLLLLLLLLL', del_triangls[ind])
+        #         sza=[]
+        #         count=0
+        #         for p in points:
+        #             for i in range(3):
+        #                 if p['merx']== del_triangls[ind][i][0] and p['mery']== del_triangls[ind][i][1] :
+        #                     sza.append([p['merx'],p['mery'],p['sza']])
+        #                     count+=1
+        #             if count == 3:
+        #                 print('break')
+        #                 print("333333", sza)
+        #                 break
+        #         # try:
+        #         #     print('tryy')
+        #         #     x,y =point['x'],point['y']
+        #         # except:
+        #         print('Удалленная точка', del_points[ind])
+        #         print('Удалленный треугольник для нее',  del_triangls[ind])
+        #         x,y = del_points[ind]['merx'], del_points[ind]['mery']
+        #         Zxy=del_points[ind]['sza']
+        #         print("SZAAAAAAAAAAAAAA", sza)
+        #         Y1 = sza[0][1]
+        #         Y2 = sza[1][1]
+        #         Y3 = sza[2][1]
+        #         X1 = sza[0][0]
+        #         X2 = sza[1][0]
+        #         X3 = sza[2][0]
+        #         Z1 = sza[0][2]
+        #         Z2 = sza[1][2]
+        #         Z3 = sza[2][2]
+        #         a = Y1 * (Z2 - Z3) + Y2 * (Z3 - Z1) + Y3 * (Z1 - Z2)
+        #         b = Z1 * (X2 - X3) + Z2 * (X3 - X1) + Z3 * (X1 - X2)
+        #         c = X1 * (Y2 - Y3) + X2 * (Y3 - Y1) + X3 * (Y1 - Y2)
+        #         d = X1 * (Y2 * Z3 - Y3 * Z2) + X2 * (Y3 * Z1 - Y1 * Z3) + X3 * (Y1 * Z2 - Y2 * Z1)
+        #         d = d * (-1)
+        #         print()
+        #         result = (-1) * (a * x + b * y + d) / c
+        #         print('MYINTERPOL:ATIOOOONNNNNNNNNNNNNN', a * x + b * y + c * result + d == 0)
+        #         result = round(result, 5)
+        #
+        #         denominator = (X1 - X2) * (Y1 - Y3) + (X2 - X3) * (Y1 - Y2)
+        #
+        #
+        #         a1 = ((Y3 - Y2) * (Z1 - Z2) + (Y1 - Y2) * (Z2 - Z3)) / denominator
+        #
+        #         b1 = ((X2 - X3) * (Z1 - Z2) + (X1 - X2) * (Z2 - Z3)) / denominator
+        #
+        #         c1 = Z2 - a1 * X2 - b1 * Y2
+        #
+        #         zz = a1*X1 + b1*Y1 + c1
+        #         zz2 = a1 * X2 + b1 * Y2 + c1
+        #         zz3 = a1 * X3 + b1 * Y3 + c1
+        #
+        #         print("Проверкаааа1",zz, '==', sza[0])
+        #         print("Проверкаааа1", zz2, '==', sza[1])
+        #         print("Проверкаааа1", zz3, '==', sza[2])
+        #         print(zz==Z1)
+        #         print(zz == Z2)
+        #         print(zz == Z3)
+        #
+        #         # a2 = (Z2 - Z1) / (X2 - X1)
+        #         # b2 = (Z3 - Z1) / (Y3 - Y1)
+        #         # c2 = Z1 - a2 * X1 - b2 * X1
+        #         #
+        #         # f = a2 * x + b2 * y + c2
+        #         #Норм
+        #         # dd = X1*(Y2-Y3) + X2*(Y3-Y1) + X3*(Y1-Y2)
+        #         # d1 = x * (Y2 - Y3) + X2 * (Y3 - y) + X3 * (y - Y2)
+        #         # d2 = X1 * (y - Y3) + x * (Y3 - Y1) + X3 * (Y1 - y)
+        #         # d3 = X1 * (Y2 - y) + X2 * (y - Y1) + x * (Y1 - Y2)
+        #         # f = (Z1*d1 +Z2*d2 +Z3*d3)/dd
+        #
+        #         # dd = (X2 - X1) * (Y3 - Y1) - (X3 - X1) * (Y2 - Y1)
+        #         # aa1 = ( (X2*Y3 -X3*Y2) +x*(Y2-Y3) + y*(X3-X2))/dd
+        #         # bb1 = ((X3*Y1 -X1*Y3) +x*(Y3-Y1) + y*(X1-X3))/dd
+        #         # cc1 = 1 - aa1 - bb1
+        #         # print(aa1,bb1,cc1)
+        #         # f = Z1 * aa1 + Z2 * bb1 + Z3 * cc1
+        #
+        #         points2=[(pp['merx'],pp['mery']) for pp in points]
+        #
+        #         sorted_points = sorted(points2, key=lambda p: math.dist( (del_points[ind]['merx'],del_points[ind]['mery']), p))
+        #         print('closestPoints',sorted_points[:4])
+        #
+        #         srtp=sorted_points[:4]
+        #         Z_val=[]
+        #         c=0
+        #         for p in points:
+        #             for i in range(len(srtp)):
+        #               if p['merx'] == srtp[i][0] and p['mery'] == srtp[i][1]:
+        #                   Z_val.append([srtp[i][0],srtp[i][1],p['sza']])
+        #                   c+=1
+        #             if c==len(srtp):
+        #                 print('BREAAAAAAAAAAAAAK  SORTEDDD_POINTSSSSSSSS')
+        #                 break
+        #
+        #
+        #         print('Z_VVVVVVVVAAAAAAALLLLLLL',Z_val)
+        #
+        #         #иНТерполяци2
+        #         # X1,Y1=srtp[0][0],srtp[0][1]
+        #         # X2, Y2 = srtp[1][0], srtp[1][1]
+        #         # a3 = (Z1*Y2 - Z2*Y1) / (X1*Y2 - X2*Y1)
+        #         # b3 = (Z1*X2 - Z2*X1) / (Y1*X2 - Y2*X1)
+        #         # c3 = Z1 - a3*X1 - b3*Y1
+        #
+        #
+        #         distances = [math.dist((del_points[ind]['merx'],del_points[ind]['mery']), p) for p in srtp]
+        #         print(distances)
+        #         sum_weight=0
+        #         sum=0
+        #         for i in range(len(distances)):
+        #             sum_weight+=1/distances[i]
+        #             sum+=Z_val[i][2]*(1/distances[i])
+        #
+        #         # weight1 = 1 / distances[0]
+        #         #
+        #         # weight2 = 1 / distances[1]
+        #         #
+        #         #
+        #         # f = (Z_val[0][2] * weight1 + Z_val[1][2] * weight2) / (weight1 + weight2)
+        #         f=sum/sum_weight
+        #
+        #
+        #         print('ffffff',f)
+        #
+        #
+        #         error1=((Zxy-result)/Zxy)*100
+        #         error2 = ((Zxy - f) / Zxy) * 100
+        #         del_points[ind]['error1'] = round(error1,6)
+        #         del_points[ind]['error2'] = round(error2,6)
+        #         # f=a3*x + b3*y + c3
+        #
+        #         # zz12 = a3 * X1 + b3 * Y1 + c1
+        #         # print("Провверка23333333333333122", zz12==Z1)
+        #         # print(sza[0], Z1,zz12)
+        #
+        #         linres= a1*x + b1*y +c1
+        #         del_points[ind]['linres']= linres
+        #         del_points[ind]['f'] = f
+        #
+        #
+        #         # i+=1
+        #         del_points[ind]['myz']=result
+        #         # break
+        #
+        # else:
 
-                denominator = (X1 - X2) * (Y1 - Y3) + (X2 - X3) * (Y1 - Y2)
+        delp= request.session.get('del', None)
+
+        pointsdb = Point.objects.all()
+        point_array = list(pointsdb.values())
+        print('олучение удаленной',  delp)
 
 
-                a1 = ((Y3 - Y2) * (Z1 - Z2) + (Y1 - Y2) * (Z2 - Z3)) / denominator
+        # triangles = [tr.get_list() for tr in Triangles.objects.all()]
+        triangles_db = Triangles.objects.all()
+        triangles_db1 = [tr.get_list() for tr in triangles_db]
 
-                b1 = ((X2 - X3) * (Z1 - Z2) + (X1 - X2) * (Z2 - Z3)) / denominator
+        triangles = request.session.get('triangles',triangles_db1)
+        points_arr = request.session.get('points', point_array)
 
-                c1 = Z2 - a1 * X2 - b1 * Y2
+        # print(triangles1)
+        # print(points_arr)
+        # print(len(points_arr))
 
-                zz = a1*X1 + b1*Y1 + c1
-                zz2 = a1 * X2 + b1 * Y2 + c1
-                zz3 = a1 * X3 + b1 * Y3 + c1
+        result = interpolation_delone(triangles,  points_arr, point)
 
-                print("Проверкаааа1",zz, '==', sza[0])
-                print("Проверкаааа1", zz2, '==', sza[1])
-                print("Проверкаааа1", zz3, '==', sza[2])
-                print(zz==Z1)
-                print(zz == Z2)
-                print(zz == Z3)
-
-                # a2 = (Z2 - Z1) / (X2 - X1)
-                # b2 = (Z3 - Z1) / (Y3 - Y1)
-                # c2 = Z1 - a2 * X1 - b2 * X1
-                #
-                # f = a2 * x + b2 * y + c2
-                #Норм
-                # dd = X1*(Y2-Y3) + X2*(Y3-Y1) + X3*(Y1-Y2)
-                # d1 = x * (Y2 - Y3) + X2 * (Y3 - y) + X3 * (y - Y2)
-                # d2 = X1 * (y - Y3) + x * (Y3 - Y1) + X3 * (Y1 - y)
-                # d3 = X1 * (Y2 - y) + X2 * (y - Y1) + x * (Y1 - Y2)
-                # f = (Z1*d1 +Z2*d2 +Z3*d3)/dd
-
-                # dd = (X2 - X1) * (Y3 - Y1) - (X3 - X1) * (Y2 - Y1)
-                # aa1 = ( (X2*Y3 -X3*Y2) +x*(Y2-Y3) + y*(X3-X2))/dd
-                # bb1 = ((X3*Y1 -X1*Y3) +x*(Y3-Y1) + y*(X1-X3))/dd
-                # cc1 = 1 - aa1 - bb1
-                # print(aa1,bb1,cc1)
-                # f = Z1 * aa1 + Z2 * bb1 + Z3 * cc1
-
-                points2=[(pp['merx'],pp['mery']) for pp in points]
-
-                sorted_points = sorted(points2, key=lambda p: math.dist( (del_points[ind]['merx'],del_points[ind]['mery']), p))
-                print('closestPoints',sorted_points[:4])
-
-                srtp=sorted_points[:4]
-                Z_val=[]
-                c=0
-                for p in points:
-                    for i in range(len(srtp)):
-                      if p['merx'] == srtp[i][0] and p['mery'] == srtp[i][1]:
-                          Z_val.append([srtp[i][0],srtp[i][1],p['sza']])
-                          c+=1
-                    if c==len(srtp):
-                        print('BREAAAAAAAAAAAAAK  SORTEDDD_POINTSSSSSSSS')
-                        break
-
-
-                print('Z_VVVVVVVVAAAAAAALLLLLLL',Z_val)
-
-                #иНТерполяци2
-                # X1,Y1=srtp[0][0],srtp[0][1]
-                # X2, Y2 = srtp[1][0], srtp[1][1]
-                # a3 = (Z1*Y2 - Z2*Y1) / (X1*Y2 - X2*Y1)
-                # b3 = (Z1*X2 - Z2*X1) / (Y1*X2 - Y2*X1)
-                # c3 = Z1 - a3*X1 - b3*Y1
-
-
-                distances = [math.dist((del_points[ind]['merx'],del_points[ind]['mery']), p) for p in srtp]
-                print(distances)
-                sum_weight=0
-                sum=0
-                for i in range(len(distances)):
-                    sum_weight+=1/distances[i]
-                    sum+=Z_val[i][2]*(1/distances[i])
-
-                # weight1 = 1 / distances[0]
-                #
-                # weight2 = 1 / distances[1]
-                #
-                #
-                # f = (Z_val[0][2] * weight1 + Z_val[1][2] * weight2) / (weight1 + weight2)
-                f=sum/sum_weight
-
-
-                print('ffffff',f)
-
-
-                error1=((Zxy-result)/Zxy)*100
-                error2 = ((Zxy - f) / Zxy) * 100
-                del_points[ind]['error1'] = round(error1,6)
-                del_points[ind]['error2'] = round(error2,6)
-                # f=a3*x + b3*y + c3
-
-                # zz12 = a3 * X1 + b3 * Y1 + c1
-                # print("Провверка23333333333333122", zz12==Z1)
-                # print(sza[0], Z1,zz12)
-
-                linres= a1*x + b1*y +c1
-                del_points[ind]['linres']= linres
-                del_points[ind]['f'] = f
-
-
-                # i+=1
-                del_points[ind]['myz']=result
-                # break
-
-        else:
-
-            delp= request.session.get('del', None)
-
-            pointsdb = Point.objects.all()
-            point_array = list(pointsdb.values())
-            print('олучение удаленной',  delp)
-
-
-            # triangles = [tr.get_list() for tr in Triangles.objects.all()]
-            triangles_db = Triangles.objects.all()
-            triangles_db1 = [tr.get_list() for tr in triangles_db]
-
-            triangles = request.session.get('triangles',triangles_db1)
-            points_arr = request.session.get('points', point_array)
-
-            # print(triangles1)
-            # print(points_arr)
-            # print(len(points_arr))
-
-            result = interpolation_delone(triangles,  points_arr, point)
-
-            print('Результат интерполяции на триангуляции после клика', result)
+        print('Результат интерполяции на триангуляции после клика', result)
         data = {
             'res':result,
             'del_points':del_points

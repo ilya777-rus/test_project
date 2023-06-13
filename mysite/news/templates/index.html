@@ -39,12 +39,12 @@
   {% block content %}
     <div id="viewDiv"></div>
   <div class="menu">
-    <form method="post" action="/triangulate/" id="formdata">
+    <form method="GET" action="/triangulate/" id="formdata">
       {% csrf_token %}
       <label for="datatime">Дата и время:</label>
-      <input type="datetime-local" name="datatime" required>
+      <input type="datetime-local" id="datatime" name="datatime" required>
 
-       <label for="z">Выберети параметр:</label>
+       <label for="z">Выберете параметр:</label>
         <select name="z" id="mySelect" required>
           <option value="sza">SZA</option>
           <option value="N nez">N:Nez</option>
